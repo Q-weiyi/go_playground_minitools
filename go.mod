@@ -1,4 +1,4 @@
-module signkeytest
+module github.com/Q-weiyi/go_playground_minitools
 
 go 1.19
 
