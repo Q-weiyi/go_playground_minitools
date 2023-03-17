@@ -1,6 +1,7 @@
 package helper
 
 import (
+	"bytes"
 	"crypto"
 	"crypto/hmac"
 	"crypto/rand"
@@ -134,4 +135,51 @@ func VerifyJWTTokenWithProcessClaims(tokenStr string, processClaimsFunc func(map
 	})
 
 	return err
+}
+
+func GenerateRSAKeys(k KeySize) (privatePem, publicPem string, err error) {
+	privateKey, err := rsa.GenerateKey(rand.Reader, int(k))
+	if err != nil {
+		fmt.Println("Error generating key:", err)
+		return
+	}
+
+	// Save the private key as a PEM block
+	privateKeyPEM := &pem.Block{
+		Type:  "RSA PRIVATE KEY",
+		Bytes: x509.MarshalPKCS1PrivateKey(privateKey),
+	}
+
+	var privateKeyBuf bytes.Buffer
+	err = pem.Encode(&privateKeyBuf, privateKeyPEM)
+	if err != nil {
+		fmt.Println("Error encoding private key:", err)
+		return
+	}
+	privatePem = privateKeyBuf.String()
+
+	// Extract the public key from the private key
+	publicKey := privateKey.PublicKey
+
+	// Save the public key as a PEM block
+	publicKeyBytes, err := x509.MarshalPKIXPublicKey(&publicKey)
+	if err != nil {
+		fmt.Println("Error marshaling public key:", err)
+		return
+	}
+
+	publicKeyPEM := &pem.Block{
+		Type:  "RSA PUBLIC KEY",
+		Bytes: publicKeyBytes,
+	}
+
+	var publicKeyBuf bytes.Buffer
+	err = pem.Encode(&publicKeyBuf, publicKeyPEM)
+	if err != nil {
+		fmt.Println("Error encoding public key:", err)
+		return
+	}
+	publicPem = publicKeyBuf.String()
+
+	return
 }
