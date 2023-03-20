@@ -113,10 +113,12 @@ func (m BodySigner) generateKeys(myWindow fyne.Window, privKey *widget.Entry, pu
 }
 
 func (m BodySigner) sign(myWindow fyne.Window, signTA *widget.Entry, privKey, pubKey, body, queryString string) {
-	data, err := helper.MinifyJSON(body)
+	_, err := helper.MinifyJSON(body)
 	if err != nil {
 		dialog.ShowError(err, myWindow)
 	}
+
+	data := []byte(body)
 
 	qs := url.QueryEscape(queryString)
 
